@@ -1,10 +1,12 @@
-import User from "../models/user.model.js";
+import { User } from "../model/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { config } from "dotenv";
+config();
 
 //JWT secret key and expiration time
-const jwtSecret = "mysecretkey";
-const jwtExpirySeconds = 300;
+const jwtSecret = process.env.JWT_SECRET;
+const jwtExpirySeconds = process.env.JWT_EXPIRY;
 
 //Generate JWT token
 const generateToken = (user) => {
@@ -30,7 +32,7 @@ const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //Create new user
-        const user = await User.create({ name, email, password, username });
+        const user = await User.create({ name, email, password: hashedPassword, username });
 
         //Generate JWT token
         const token = generateToken(user._id);
@@ -54,13 +56,13 @@ const login = async (req, res) => {
         //Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid email or password" });
+            return res.status(400).json({ message: "User not found" });
         }
 
         //Check if password is correct
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
-            return res.status(400).json({ message: "Invalid email or password" });
+            return res.status(400).json({ message: "Password is incorrect" });
         }
 
         //Generate JWT token
@@ -79,14 +81,14 @@ const login = async (req, res) => {
 }
 
 //Get User Profile
-const getUserProfile = async (req, res) => {
+const getUserById = async (req, res) => {
     try {
         const { userId } = req.params;
         if (!userId) {
             return res.status(400).json({ message: "User ID is required" });
         }
 
-        const user = await User.findById(userId).select("-password");
+        const user = await User.findById(userId);
 
         if (!user) {
             return res.status(404).json({ message: "User not found" })
@@ -101,8 +103,28 @@ const getUserProfile = async (req, res) => {
     }
 }
 
+//Get All Users
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+
+        if (!users) {
+            return res.status(404).json({ message: "No users found" });
+        }
+
+        return res.status(200).json({ message: "All users", data: users });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+
+    }
+}
+
 //Update User Profile
-const updateUserProfile = async (req, res) => {
+const updateUserById = async (req, res) => {
     try {
         const { userId } = req.params;
         const { name, email, password, username } = req.body;
@@ -120,7 +142,7 @@ const updateUserProfile = async (req, res) => {
             username
         }
 
-        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-password");
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
         return res.status(200).json({ message: "User Updated succsesfully", data: updatedUser });
 
@@ -134,27 +156,24 @@ const updateUserProfile = async (req, res) => {
 }
 
 //Delete User Profile
-const deleteUserProfile = async(req, res) => {
+const deleteUserById = async (req, res) => {
     try {
         const { userId } = req.params;
-        if( !userId ) {
-            return res.status(400).json({ message: "User ID is required" });
-        }
-        
-        if( !mongoose.Types.ObjectId.isValid(userId)) {
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(404).json({ message: "Invalid User ID" });
         }
 
-        const deletedUser = await User.findByIdAndDelete(userId).select("-password");
+        const deletedUser = await User.findByIdAndDelete(userId);
 
-        return res.status(200).json({ message: "User deleted succesfully"});
-        
+        return res.status(200).json({ message: "User deleted succesfully" });
+
     } catch (error) {
         res.status(500).json({
             message: "Server error",
             error: error.message
-        }) 
+        })
     }
 }
 
-export { signup, login, getUserProfile, updateUserProfile, deleteUserProfile };
+export { signup, login, getUserById, updateUserById, deleteUserById, getAllUsers };
