@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { config } from "dotenv";
 config();
+import mongoose from "mongoose";
 
 //JWT secret key and expiration time
 const jwtSecret = process.env.JWT_SECRET;
