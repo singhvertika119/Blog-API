@@ -1,7 +1,8 @@
-import { Post } from '../models/post.model.js';
+import { Post } from '../model/post.model.js';
+import mongoose from 'mongoose';
 
 //Create new post
-const createPost = async ( req, res ) => {
+const createPost = async (req, res) => {
     try {
         const { title, content, author } = req.body;
 
@@ -11,22 +12,22 @@ const createPost = async ( req, res ) => {
         return res.status(201).json({ message: "Post created succesfully", post });
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error",
             error: error.message
         });
-        
+
     }
 }
 
 //Get all posts
-const getAllPosts = async ( req, res ) => {
+const getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().populate("author", "name email").sort({ createdAt: -1 });
         return res.status(200).json({ posts });
 
     } catch (error) {
-        req.status(500).json({
+        return req.status(500).json({
             message: "Server error",
             error: error.message
         });
@@ -34,22 +35,25 @@ const getAllPosts = async ( req, res ) => {
 }
 
 //Get post by ID
-const getPostById = async ( req, res ) => {
+const getPostById = async (req, res) => {
     try {
         const { postId } = req.params;
 
-        if ( !postId ) {
+        if (!postId) {
             return res.status(400).json({ message: "Post ID is required" });
         }
 
         const post = await Post.findById(postId).populate("author", "name email");
 
-        if( !post ) {
+        
+        if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
 
+        return res.status(200).json({ post });
+
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error",
             error: error.message
         });
@@ -57,12 +61,12 @@ const getPostById = async ( req, res ) => {
 }
 
 //Update post by ID
-const updatePostById = async ( req, res ) => {
+const updatePostById = async (req, res) => {
     try {
         const { postId } = req.params;
-        const { title, content } = req.params;
+        const { title, content } = req.body;
 
-        if( !mongoose.Types.ObjectId.isValid(postId) ) {
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ message: "Post ID is invalid" });
         }
 
@@ -73,32 +77,32 @@ const updatePostById = async ( req, res ) => {
 
         const post = await Post.findByIdAndUpdate(postId, updatedPost, { new: true });
 
-        return res.status(200).json({ message: "Post updated successfully", post });
+        return res.status(200).json({ message: "Post updated successfully", data: post});
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error",
             error: error.message
-        
+
         });
     }
 }
 
 //Delete post by ID
-const deletePostById = async ( req, res ) => {
+const deletePostById = async (req, res) => {
     try {
         const { postId } = req.params;
 
-        if( !mongoose.Types.ObjectId.isValid(postId) ) {
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ message: "Post ID is invalid" });
         }
 
-        await Post.findByIdAndRemove(postId);
+        await Post.findByIdAndDelete(postId);
 
         return res.status(200).json({ message: "Post deleted successfully" });
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error",
             error: error.message
         });
