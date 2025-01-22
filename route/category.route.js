@@ -9,6 +9,6 @@ router.get("/:categoryId", getCategoryById);
 router.put("/:categoryId", updateCategory);
 router.delete("/:categoryId", deleteCategoryById);
 
-// blunder 
+// blunder - new feature
 
 export default router;
