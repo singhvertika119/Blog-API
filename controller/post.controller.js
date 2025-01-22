@@ -109,5 +109,5 @@ const deletePostById = async (req, res) => {
     }
 }
 
-//Export functions
+//Export 
 export { createPost, getAllPosts, getPostById, updatePostById, deletePostById };

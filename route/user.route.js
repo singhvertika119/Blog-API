@@ -12,4 +12,4 @@ router.put("/update/:userId", updateUserById);
 router.delete("/:userId", deleteUserById);
 
 //Export the router
-export { router };
+export default router;

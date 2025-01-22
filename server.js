@@ -1,17 +1,15 @@
-import express from "express";
+import app from "./route/index.js";
+import { connectDB } from "./config/db.js";
 import { config } from "dotenv";
 config();
-import { connectDB } from "./config/db.js";
-import { router } from "./route/user.route.js";
-import postRouter from "./route/post.route.js";
 
-const app = express();
+
 
 connectDB();
 
-app.use(express.json());
-app.use("/users", router);
-app.use("/posts", postRouter);
+// app.use(express.json());
+// app.use("/users", router);
+// app.use("/posts", postRouter);
 
 app.get("/", (req, res) => {
     res.send("Welcome to the Blog!");

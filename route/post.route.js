@@ -5,7 +5,7 @@ const router = Router();
 
 //Routes for creating a post
 router.post("/create", createPost);
-router.get("/get", getAllPosts);
+router.get("/all", getAllPosts);
 router.get("/:postId", getPostById);
 router.put("/:postId", updatePostById);
 router.delete("/:postId", deletePostById);
