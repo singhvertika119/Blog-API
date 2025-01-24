@@ -13,10 +13,10 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: error.errors[0].message });
     }
 
-    const { title, content, author, category } = req.body;
+    const { title, content } = req.body;
 
     //Create new post
-    const post = await Post.create({ title, content, author, category });
+    const post = await Post.create({ title, content  });
 
     return res.status(201).json({ message: "Post created succesfully", post });
   } catch (error) {
@@ -31,7 +31,7 @@ const createPost = async (req, res) => {
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("author", "name email category")
+      .populate("author", "name email ")
       .sort({ createdAt: -1 });
     return res.status(200).json({ posts });
   } catch (error) {
@@ -53,7 +53,7 @@ const getPostById = async (req, res) => {
 
     const post = await Post.findById(postId).populate(
       "author",
-      "name email category"
+      "name email "
     );
 
     if (!post) {

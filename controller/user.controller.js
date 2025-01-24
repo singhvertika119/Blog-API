@@ -16,7 +16,7 @@ const jwtExpirySeconds = process.env.JWT_EXPIRY;
 
 //Generate JWT token
 const generateToken = (user) => {
-  const token = jwt.sign({ id: user.id }, jwtSecret, {
+  const token = jwt.sign({ id: user._id }, jwtSecret, {
     algorithm: "HS256",
     expiresIn: jwtExpirySeconds,
   });
