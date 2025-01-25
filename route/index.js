@@ -1,22 +1,12 @@
 import userRouter from "./user.route.js";
 import postRouter from "./post.route.js";
 import categoryRouter from "./category.route.js";
-import { authMiddleware } from "../middleware/auth.middleware.js";
-import { notFound } from "../middleware/notFound.middleware.js";
 import express from "express";
 
-const app = express();
-app.use(express.json());
+const router = express.Router();
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+router.use("/users", userRouter);
+router.use("/posts", postRouter);
+router.use("/categories", categoryRouter);
 
-app.use("/users", userRouter);
-app.use("/posts", authMiddleware, postRouter);
-app.use("/categories", authMiddleware, categoryRouter);
-
-app.use(notFound);
-
-export default app;
+export default router;

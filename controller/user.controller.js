@@ -40,14 +40,11 @@ const signup = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    //Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     //Create new user
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       username,
     });
 
@@ -156,24 +153,20 @@ const updateUserById = async (req, res) => {
     }
 
     const { userId } = req.params;
-    const { name, email, password, username } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(404).json({ message: "Invalid User ID" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: req.body },
+      { new: true }
+    );
 
-    const updateData = {
-      name,
-      email,
-      password: hashedPassword,
-      username,
-    };
-
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,
-    });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     return res
       .status(200)
@@ -195,7 +188,7 @@ const deleteUserById = async (req, res) => {
       return res.status(404).json({ message: "Invalid User ID" });
     }
 
-    const deletedUser = await User.findByIdAndDelete(userId);
+    await User.findByIdAndDelete(userId);
 
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
