@@ -8,7 +8,7 @@ const createPostSchema = z.object({
   content: z
     .string()
     .min(10, { message: "the content must be atleast 10 characters long" }),
-  
+  category: z.string().min(1, { message: "Category ID is required" }),
 });
 
 const updatePostSchema = z.object({

@@ -11,6 +11,7 @@ const signupSchema = z.object({
   password: z
     .string()
     .min(8, { message: "password should be atleast 8 characters long" }),
+  role: z.string().optional(),
 });
 
 const loginSchema = z.object({

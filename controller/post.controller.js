@@ -13,12 +13,20 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: error.errors[0].message });
     }
 
-    const { title, content } = req.body;
+    const { title, content, category } = req.body;
+    const author = req.user._id;
 
     //Create new post
-    const post = await Post.create({ title, content  });
+    const post = await Post.create({ title, content, author, category });
 
-    return res.status(201).json({ message: "Post created succesfully", post });
+    const populatedPost = await Post.findById(post._id).populate(
+      "author",
+      "name email"
+    );
+
+    return res
+      .status(201)
+      .json({ message: "Post created succesfully", data: populatedPost });
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
@@ -51,10 +59,7 @@ const getPostById = async (req, res) => {
       return res.status(400).json({ message: "Post ID is required" });
     }
 
-    const post = await Post.findById(postId).populate(
-      "author",
-      "name email "
-    );
+    const post = await Post.findById(postId).populate("author", "name email");
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -78,9 +83,23 @@ const updatePostById = async (req, res) => {
     }
     const { postId } = req.params;
     const { title, content } = req.body;
+    const userId = req.user._id;
+    const userRole = req.user.role;
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return res.status(400).json({ message: "Post ID is invalid" });
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (userRole !== "admin" && post.author.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to update this post" });
     }
 
     const updatedPost = {
@@ -88,13 +107,13 @@ const updatePostById = async (req, res) => {
       content,
     };
 
-    const post = await Post.findByIdAndUpdate(postId, updatedPost, {
+    const newPost = await Post.findByIdAndUpdate(postId, updatedPost, {
       new: true,
-    });
+    }).populate("author", "name email");
 
     return res
       .status(200)
-      .json({ message: "Post updated successfully", data: post });
+      .json({ message: "Post updated successfully", data: newPost });
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
@@ -107,12 +126,26 @@ const updatePostById = async (req, res) => {
 const deletePostById = async (req, res) => {
   try {
     const { postId } = req.params;
+    const userId = req.user._id;
+    const userRole = req.user.role;
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return res.status(400).json({ message: "Post ID is invalid" });
     }
 
-    await Post.findByIdAndDelete(postId);
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    if (userRole !== "admin" && post.author.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this post" });
+    }
+
+    await post.deleteOne();
 
     return res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {

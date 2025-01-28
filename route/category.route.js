@@ -11,7 +11,7 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.post("/create", authMiddleware, createCategory);
-router.get("/get", getAllCategories);
+router.get("/all", getAllCategories);
 router.get("/:categoryId", getCategoryById);
 router.put("/:categoryId", authMiddleware, updateCategory);
 router.delete("/:categoryId", authMiddleware, deleteCategoryById);

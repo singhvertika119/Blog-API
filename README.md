@@ -4,4 +4,8 @@
 <!-- - authMiddleware har jagah use krna h  -->
 - login by email or username ( $or )
 <!-- - use .pre hook to hash user password  -->
+<!-- - implement Role based Access Control  -->
+- use refresh tokens
+
+
 
