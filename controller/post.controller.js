@@ -4,6 +4,8 @@ import {
   validatePost,
   validatePostUpdate,
 } from "../validator/post.validator.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import { query } from "express";
 
 //Create new post
 const createPost = async (req, res) => {
@@ -36,19 +38,37 @@ const createPost = async (req, res) => {
 };
 
 //Get all posts
-const getAllPosts = async (req, res) => {
+const getAllPosts = asyncHandler(async (req, res) => {
   try {
-    const posts = await Post.find()
+    let { search, page = 1, limit = 5 } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+
+    let query = {};
+
+    if (search) {
+      query = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { content: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
+    const posts = await Post.find(query)
       .populate("author", "name email ")
+      .populate("category", "name")
+      .skip((page - 1) * limit)
+      .limit(limit)
       .sort({ createdAt: -1 });
-    return res.status(200).json({ posts });
+    return res.status(200).json({ posts, currentPage: page });
   } catch (error) {
-    return req.status(500).json({
+    return res.status(500).json({
       message: "Server error",
       error: error.message,
     });
   }
-};
+});
 
 //Get post by ID
 const getPostById = async (req, res) => {

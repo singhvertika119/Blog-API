@@ -2,8 +2,11 @@ import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import { config } from "dotenv";
 config();
+import viewsRouter from "./route/index.js";
 
 connectDB();
+
+app.use("/", viewsRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Blog!");
