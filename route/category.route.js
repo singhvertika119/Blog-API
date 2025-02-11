@@ -22,7 +22,7 @@ router.get("/:categoryId", getCategoryById);
 router.put(
   "/:categoryId",
   authMiddleware,
-  check(["author", "admin"]),
+  checkRole(["author", "admin"]),
   updateCategory
 );
 router.delete(

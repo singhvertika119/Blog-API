@@ -1,4 +1,4 @@
-export const checkRole = (role) => {
+const checkRole = (role) => {
   return (req, res, next) => {
     if (!role.includes(req.user.role)) {
       return res.status(403).json({ message: "Access Denied" });
@@ -6,3 +6,5 @@ export const checkRole = (role) => {
     next();
   };
 };
+
+export default checkRole;

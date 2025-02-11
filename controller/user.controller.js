@@ -46,11 +46,18 @@ const signup = async (req, res) => {
       email,
       password,
       username,
-      role: role || "user",
+      role: role,
     });
 
     //Generate JWT token
     const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(201).json({
       message: "User created succesfully",
@@ -96,6 +103,14 @@ const login = async (req, res) => {
 
     //Generate JWT token
     const token = generateToken(user._id);
+
+    //set the token as cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       message: "Login successful",

@@ -5,7 +5,6 @@ import {
   validatePostUpdate,
 } from "../validator/post.validator.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { query } from "express";
 
 //Create new post
 const createPost = async (req, res) => {
@@ -20,6 +19,9 @@ const createPost = async (req, res) => {
 
     //Create new post
     const post = await Post.create({ title, content, author, category });
+
+    //emit event when post is created
+    req.io.emit("newPost", post);
 
     const populatedPost = await Post.findById(post._id).populate(
       "author",
