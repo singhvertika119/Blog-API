@@ -1,5 +1,4 @@
 import { User } from "../model/user.model.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { config } from "dotenv";
 config();
@@ -9,19 +8,8 @@ import {
   validateLogin,
   validateuserUpdate,
 } from "../validator/user.validator.js";
-
-//JWT secret key and expiration time
-const jwtSecret = process.env.JWT_SECRET;
-const jwtExpirySeconds = process.env.JWT_EXPIRY;
-
-//Generate JWT token
-const generateToken = (user) => {
-  const token = jwt.sign({ id: user._id }, jwtSecret, {
-    algorithm: "HS256",
-    expiresIn: jwtExpirySeconds,
-  });
-  return token;
-};
+import asyncHandler from "../utils/asyncHandler.js";
+import { generateAccessToken } from "./auth.controller.js";
 
 //Sign up user
 const signup = async (req, res) => {
@@ -50,9 +38,9 @@ const signup = async (req, res) => {
     });
 
     //Generate JWT token
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user);
 
-    res.cookie("token", token, {
+    res.cookie("token", accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
@@ -68,7 +56,7 @@ const signup = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token,
+      accessToken,
     });
   } catch (error) {
     return res.status(500).json({
@@ -102,10 +90,10 @@ const login = async (req, res) => {
     }
 
     //Generate JWT token
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user);
 
     //set the token as cookie
-    res.cookie("token", token, {
+    res.cookie("token", accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
@@ -121,15 +109,27 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token,
+      accessToken,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: "Server error",
       error: error.message,
     });
   }
 };
+
+//logout user
+const logout = asyncHandler(async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+  });
+
+  res.status(200).json({ message: "Logout succesfull" });
+});
 
 //Get User Profile
 const getUserById = async (req, res) => {
@@ -245,6 +245,7 @@ const deleteUserById = async (req, res) => {
 export {
   signup,
   login,
+  logout,
   getUserById,
   updateUserById,
   deleteUserById,

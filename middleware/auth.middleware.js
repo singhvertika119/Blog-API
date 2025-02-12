@@ -7,15 +7,15 @@ const authMiddleware = async (req, res, next) => {
     return res.status(400).json({message: "cookies not found"});
   }
   //Extract token from the cookies
-  const token = req.cookies.token;
+  const accessToken = req.cookies.token;
 
-  if (!token) {
+  if (!accessToken) {
     return res.status(401).json({ message: "Token not provided" });
   }
 
   try {
     //Validates the object using secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
     //Fetches the user
     const user = await User.findById(decoded.id).select("-password");
 

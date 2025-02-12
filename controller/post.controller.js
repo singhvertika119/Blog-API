@@ -41,35 +41,28 @@ const createPost = async (req, res) => {
 
 //Get all posts
 const getAllPosts = asyncHandler(async (req, res) => {
-  try {
-    let { search, page = 1, limit = 5 } = req.query;
-    page = Number(page);
-    limit = Number(limit);
+  let { search, page = 1, limit = 5 } = req.query;
+  page = Number(page);
+  limit = Number(limit);
 
-    let query = {};
+  let query = {};
 
-    if (search) {
-      query = {
-        $or: [
-          { title: { $regex: search, $options: "i" } },
-          { content: { $regex: search, $options: "i" } },
-        ],
-      };
-    }
-
-    const posts = await Post.find(query)
-      .populate("author", "name email ")
-      .populate("category", "name")
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-    return res.status(200).json({ posts, currentPage: page });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
+  if (search) {
+    query = {
+      $or: [
+        { title: { $regex: search, $options: "i" } },
+        { content: { $regex: search, $options: "i" } },
+      ],
+    };
   }
+
+  const posts = await Post.find(query)
+    .populate("author", "name email ")
+    .populate("category", "name")
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+  return res.status(200).json({ posts, currentPage: page });
 });
 
 //Get post by ID
