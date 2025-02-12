@@ -120,9 +120,14 @@ const login = async (req, res) => {
   }
 };
 
+//get the current login user
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res.status(200).json({ message: "Current user", user: req.user });
+});
+
 //logout user
 const logout = asyncHandler(async (req, res) => {
-  res.clearCookie("token", {
+  await res.clearCookie("token", {
     httpOnly: true,
     secure: false,
     sameSite: "strict",
@@ -245,6 +250,7 @@ const deleteUserById = async (req, res) => {
 export {
   signup,
   login,
+  getCurrentUser,
   logout,
   getUserById,
   updateUserById,
