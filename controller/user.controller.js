@@ -40,24 +40,25 @@ const signup = async (req, res) => {
     //Generate JWT token
     const accessToken = generateAccessToken(user);
 
-    res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "strict",
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.status(201).json({
-      message: "User created succesfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-      accessToken,
-    });
+    return res
+      .status(201)
+      .cookie("accesToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        message: "User created succesfully",
+        user: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+        accessToken,
+      });
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
@@ -92,25 +93,25 @@ const login = async (req, res) => {
     //Generate JWT token
     const accessToken = generateAccessToken(user);
 
-    //set the token as cookie
-    res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "strict",
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-      accessToken,
-    });
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        message: "Login successful",
+        user: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+        accessToken,
+      });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -127,7 +128,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 //logout user
 const logout = asyncHandler(async (req, res) => {
-  await res.clearCookie("token", {
+  await res.clearCookie("accessToken", {
     httpOnly: true,
     secure: false,
     sameSite: "strict",

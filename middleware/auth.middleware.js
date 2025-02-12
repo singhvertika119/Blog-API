@@ -7,7 +7,7 @@ const authMiddleware = async (req, res, next) => {
     return res.status(400).json({message: "cookies not found"});
   }
   //Extract token from the cookies
-  const accessToken = req.cookies.token;
+  const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
     return res.status(401).json({ message: "Token not provided" });
