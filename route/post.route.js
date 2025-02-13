@@ -12,14 +12,14 @@ import checkRole from "../middleware/role.middleware.js";
 const router = Router();
 
 //Routes for creating a post
-router.post("/create", authMiddleware, checkRole(["author"]), createPost);
+router.post("/create", authMiddleware, checkRole(["user"]), createPost);
 router.get("/all", getAllPosts);
 router.get("/:postId", getPostById);
-router.put("/:postId", authMiddleware, checkRole(["author"]), updatePostById);
+router.put("/:postId", authMiddleware, checkRole(["user"]), updatePostById);
 router.delete(
   "/:postId",
   authMiddleware,
-  checkRole(["author", "admin"]),
+  checkRole(["user", "admin"]),
   deletePostById
 );
 

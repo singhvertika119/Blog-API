@@ -14,7 +14,7 @@ const router = Router();
 router.post(
   "/create",
   authMiddleware,
-  checkRole(["author", "admin"]),
+  checkRole(["user", "admin"]),
   createCategory
 );
 router.get("/all", getAllCategories);
@@ -22,13 +22,13 @@ router.get("/:categoryId", getCategoryById);
 router.put(
   "/:categoryId",
   authMiddleware,
-  checkRole(["author", "admin"]),
+  checkRole(["user", "admin"]),
   updateCategory
 );
 router.delete(
   "/:categoryId",
   authMiddleware,
-  checkRole(["author", "admin"]),
+  checkRole(["user", "admin"]),
   deleteCategoryById
 );
 

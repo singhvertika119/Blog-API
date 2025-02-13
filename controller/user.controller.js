@@ -192,11 +192,16 @@ const updateUserById = async (req, res) => {
       return res.status(404).json({ message: "Invalid User ID" });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: req.body },
-      { new: true }
-    );
+    let updatedFields = { ...req.body };
+
+    if (req.body.password) {
+      updatedFields.password = await bcrypt.hash(req.body.password, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
+      runValidators: true,
+      new: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -212,6 +217,34 @@ const updateUserById = async (req, res) => {
     });
   }
 };
+
+//update current user
+const updateCurrentUser = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(404).json({ message: "Invalid User ID" });
+  }
+
+  let updatedFields = { ...req.body };
+
+  if (req.body.password) {
+    updatedFields.password = await bcrypt.hash(req.body.password, 10);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
+    runValidators: true,
+    new: true,
+  });
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "User Updated succsesfully", data: updatedUser });
+});
 
 //Delete User Profile
 const deleteUserById = async (req, res) => {
@@ -255,6 +288,7 @@ export {
   logout,
   getUserById,
   updateUserById,
+  updateCurrentUser,
   deleteUserById,
   getAllUsers,
 };

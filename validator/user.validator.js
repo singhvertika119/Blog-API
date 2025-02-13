@@ -26,15 +26,18 @@ const userUpdateSchema = z.object({
   name: z
     .string()
     .min(3, { message: "Name must be at least 3 characters long" })
-    .max(50, { message: "Name must not exceed 50 characters" }),
+    .max(50, { message: "Name must not exceed 50 characters" })
+    .optional(),
   username: z
     .string()
     .min(3, { message: "username must be atleast 3 characters long" }),
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "Invalid email address" }).optional(),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters long" })
-    .max(128, { message: "Password must not exceed 128 characters" }),
+    .max(128, { message: "Password must not exceed 128 characters" })
+    .optional(),
+  role: z.enum("author", "admin").optional(),
 });
 
 const validateSignup = (data) => {
