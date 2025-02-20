@@ -9,7 +9,10 @@ import {
   validateuserUpdate,
 } from "../validator/user.validator.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { generateAccessToken } from "./auth.controller.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "./auth.controller.js";
 
 //Sign up user
 const signup = async (req, res) => {
@@ -37,7 +40,7 @@ const signup = async (req, res) => {
       role: role,
     });
 
-    //Generate JWT token
+    //Generate access and refresh token
     const accessToken = generateAccessToken(user);
 
     return res
@@ -46,7 +49,7 @@ const signup = async (req, res) => {
         httpOnly: true,
         secure: false,
         sameSite: "strict",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+        maxAge: 15 * 60 * 1000,
       })
       .json({
         message: "User created succesfully",
@@ -92,10 +95,17 @@ const login = async (req, res) => {
 
     //Generate JWT token
     const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     return res
       .status(200)
       .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: "strict",
@@ -111,6 +121,7 @@ const login = async (req, res) => {
           role: user.role,
         },
         accessToken,
+        refreshToken,
       });
   } catch (error) {
     console.log(error);
@@ -128,7 +139,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 //logout user
 const logout = asyncHandler(async (req, res) => {
-  await res.clearCookie("accessToken", {
+  await res.clearCookie("accessToken", "refreshToken", {
     httpOnly: true,
     secure: false,
     sameSite: "strict",
